@@ -28,6 +28,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
     Timer gameLoop;
     int velocityX;
     int velocityY;
+    boolean gameOver = false;
 
     SnakeGame(int boardWidth, int boardHeight){
         this.boardWidth = boardHeight;
@@ -84,6 +85,14 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
             Tile snakePart = snakeBody.get(i);
             g.fillRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize);
         }
+
+        g.setFont(new Font("Arial", Font.PLAIN, 16));
+        if(gameOver){
+            g.setColor(Color.red);
+            g.drawString("Game Over: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
+        } else{
+            g.drawString("Score: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
+        }
     }
 
 
@@ -108,12 +117,26 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener{
 
         snakeHead.x += velocityX;
         snakeHead.y += velocityY;
+
+        for(int i = 0; i < snakeBody.size(); i++){
+            Tile snakePart =  snakeBody.get(i);
+            if(collision(snakeHead, snakePart)){
+                gameOver = true;
+            }
+        }
+
+        if(snakeHead.x*tileSize < 0 || snakeHead.x*tileSize > boardWidth || snakeHead.y*tileSize < 0 || snakeHead.y*tileSize > boardHeight){
+            gameOver = true;
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         move();
         repaint();
+        if(gameOver){
+            gameLoop.stop();
+        }
     }
 
     @Override
